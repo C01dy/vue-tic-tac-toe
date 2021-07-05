@@ -1,27 +1,65 @@
 <template>
-  <div id="field">
-    <div v-for="(outher, i) in field" :key="outher" class="outher">
-      <div
-        @click="setMark(i, j)"
-        v-for="(cell, j) in outher"
-        :key="cell"
-        class="cell"
-      >
-        <div v-if="cell === 'X'" class="cross">
-          <div class="cross-line cross-line-1"></div>
-          <div class="cross-line cross-line-2"></div>
-        </div>
-
-        <div v-if="cell === 'O'" class="circle"></div>
+  <div class="total-score">
+    <h2>Total score</h2>
+    <div class="total-score-window">
+      <div class="cross-score total-score-inner">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          fill="currentColor"
+          class="bi bi-x-lg"
+          viewBox="0 0 16 16"
+        >
+          <path
+            d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"
+          />
+        </svg>
+        <h3 class="score-number">{{ totalScore.cross }}</h3>
+      </div>
+      <div class="circle-score total-score-inner">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          fill="currentColor"
+          class="bi bi-circle"
+          viewBox="0 0 16 16"
+        >
+          <path
+            d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+          />
+        </svg>
+        <h3 class="score-number">{{ totalScore.circle }}</h3>
       </div>
     </div>
   </div>
-  <template v-if="isGameFinished">
-    <h4>Game has finished, winner: {{ winner }}</h4>
-    <button @click="clearField()" class="clear-field-btn">
-      Clear field
-    </button>
-  </template>
+  <div class="main">
+    <div id="field">
+      <div v-for="(outher, i) in field" :key="outher" class="outher">
+        <button
+          @click="setMark(i, j)"
+          v-for="(cell, j) in outher"
+          :key="cell"
+          class="cell"
+          v-bind:disabled="isGameFinished"
+        >
+          <div v-if="cell === 'X'" class="cross">
+            <div class="cross-line cross-line-1"></div>
+            <div class="cross-line cross-line-2"></div>
+          </div>
+
+          <div v-if="cell === 'O'" class="circle"></div>
+        </button>
+      </div>
+    </div>
+    <template v-if="isGameFinished">
+      <h4>Game has finished, winner: {{ winner }}</h4>
+      <button @click="clearField()" class="clear-field-btn">
+        Clear field
+      </button>
+    </template>
+  </div>
 </template>
 
 <script>
@@ -37,6 +75,10 @@ export default {
       isCrossPlayer: true,
       isGameFinished: false,
       winner: null,
+      totalScore: {
+        cross: 0,
+        circle: 0,
+      },
     };
   },
   methods: {
@@ -44,8 +86,10 @@ export default {
       if (!this.field[i][j]) {
         if (this.isCrossPlayer) {
           this.field[i][j] = 'X';
+          console.log(this.field);
         } else {
           this.field[i][j] = 'O';
+          console.log(this.field);
         }
         this.isCrossPlayer = !this.isCrossPlayer;
         this.checkWinPositions();
@@ -78,9 +122,16 @@ export default {
         this.isGameFinished = true;
         if (this.isCrossPlayer) {
           this.winner = 'O';
-        } else {
+          this.totalScore.circle += 1;
+        } else if (!this.isCrossPlayer) {
           this.winner = 'X';
+          this.totalScore.cross += 1;
         }
+      } else if (
+        this.field.every((innerArray) => innerArray.every((el) => el !== ''))
+      ) {
+        this.isGameFinished = true;
+        this.winner = 'draw';
       }
     },
     clearField() {
@@ -105,6 +156,8 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+  display: flex;
+  justify-content: center;
 }
 
 #field {
@@ -112,9 +165,25 @@ export default {
   /* height: 423px; */
   display: flex;
   flex-wrap: wrap;
-  border-top: 1px solid black;
-  border-left: 1px solid black;
+  border-top: 2px solid #1f2937;
+  border-left: 2px solid #1f2937;
   margin: 0 auto;
+}
+
+.total-score-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.total-score-window {
+  display: flex;
+  justify-content: space-between;
+}
+
+.score-number {
+  font-size: 1.5em;
+  font-weight: bold;
 }
 
 .cell {
@@ -123,9 +192,10 @@ export default {
   align-items: center;
   width: 140px;
   height: 140px;
-  border-bottom: 1px solid black;
-  border-right: 1px solid black;
+  border-bottom: 2px solid #1f2937;
+  border-right: 2px solid #1f2937;
   cursor: pointer;
+  background: none;
 }
 
 .cell:hover {
@@ -137,8 +207,10 @@ export default {
 }
 
 .clear-field-btn {
+  font-family: 'Zen Loop', cursive;
+  font-size: 1.5em;
   width: 145px;
-  height: 3em;
+  height: 2em;
   padding: 0.2em 1.5em;
   outline: none;
   border: none;
@@ -191,11 +263,30 @@ export default {
   );
 }
 
+.total-score-inner:first-child {
+  border-right: 1px solid #1f2937;
+  padding-right: 0.8em;
+}
+
 .cross-line-1 {
   transform: rotate(45deg);
 }
 
 .cross-line-2 {
   transform: rotate(-45deg);
+}
+
+.total-score {
+  position: absolute;
+  left: 0;
+  padding: 0.5em 1.5em;
+  border-right: 2px solid #111827;
+  border-top: 2px solid #111827;
+  border-bottom: 2px solid #111827;
+  font-family: 'Zen Loop', cursive;
+  font-size: 1.5em;
+  /* text-align: start; */
+  border-top-right-radius: 0.7em;
+  border-bottom-right-radius: 0.7em;
 }
 </style>

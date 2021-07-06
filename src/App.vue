@@ -41,7 +41,12 @@
   </div>
   <div class="main">
     <div id="field">
-      <div v-for="(outher, i) in field" :key="outher" class="outher">
+      <div
+        v-for="(outher, i) in field"
+        :key="outher"
+        class="outher"
+        ref="outherFieldRef"
+      >
         <button
           @click="setMark(i, j)"
           v-for="(cell, j) in outher"
@@ -59,8 +64,8 @@
       </div>
     </div>
     <template v-if="isGameFinished">
-      <h4>Game has finished, winner: {{ winner }}</h4>
-      <button @click="clearField()" class="clear-field-btn">
+      <h4>&#128570; Game has finished, winner: {{ winner }}</h4>
+      <button @click="clearField" class="clear-field-btn">
         reset
       </button>
     </template>
@@ -68,6 +73,7 @@
 </template>
 
 <script>
+import anime from 'animejs/lib/anime.es.js';
 export default {
   name: 'App',
   data() {
@@ -207,8 +213,8 @@ export default {
   width: min-content;
   display: flex;
   flex-wrap: wrap;
-  border-top: 2px solid #1f2937;
-  border-left: 2px solid #1f2937;
+  /* border-top: 2px solid rgb(3, 72, 142);
+  border-left: 2px solid rgb(3, 72, 142); */
   margin: 0 auto;
 }
 
@@ -234,14 +240,86 @@ export default {
   align-items: center;
   width: 140px;
   height: 140px;
-  border-bottom: 2px solid #1f2937;
-  border-right: 2px solid #1f2937;
+  /* border: 2px solid rgb(3, 72, 142); */
   cursor: pointer;
+  border: none;
   background: none;
+  outline: none;
 }
 
+/* ------ field border radius ------ */
+#field .outher:nth-child(1) .cell:nth-child(1) {
+  border-top-left-radius: 12px;
+}
+
+#field .outher:nth-child(1) .cell:nth-child(3) {
+  border-top-right-radius: 12px;
+}
+
+#field .outher:nth-child(3) .cell:nth-child(1) {
+  border-bottom-left-radius: 12px;
+}
+
+#field .outher:nth-child(3) .cell:nth-child(3) {
+  border-bottom-right-radius: 12px;
+}
+/* - ---- field border radius ----- - */
+
+/* ------ borders for cells -------- */
+#field .outher:nth-child(2) .cell:nth-child(2) {
+  border: 3px solid rgb(3, 72, 142);
+}
+
+#field .outher:nth-child(1) .cell {
+  border-top: 3px solid rgb(3, 72, 142);
+}
+
+#field .outher:nth-child(3) .cell {
+  border-bottom: 3px solid rgb(3, 72, 142);
+}
+
+#field .outher:nth-child(2) .cell {
+  border-bottom: 3px solid rgb(3, 72, 142);
+  border-top: 3px solid rgb(3, 72, 142);
+}
+
+#field .outher:nth-child(2) .cell:nth-child(1) {
+  border-left: 3px solid rgb(3, 72, 142);
+}
+
+#field .outher:nth-child(2) .cell:nth-child(3) {
+  border-right: 3px solid rgb(3, 72, 142);
+}
+
+#field .outher:nth-child(1) .cell:nth-child(1) {
+  border-left: 3px solid rgb(3, 72, 142);
+}
+
+#field .outher:nth-child(1) .cell:nth-child(3) {
+  border-right: 3px solid rgb(3, 72, 142);
+}
+
+#field .outher:nth-child(3) .cell:nth-child(1) {
+  border-left: 3px solid rgb(3, 72, 142);
+}
+
+#field .outher:nth-child(3) .cell:nth-child(3) {
+  border-right: 3px solid rgb(3, 72, 142);
+}
+
+#field .outher:nth-child(1) .cell:nth-child(2) {
+  border-left: 3px solid rgb(3, 72, 142);
+  border-right: 3px solid rgb(3, 72, 142);
+}
+
+#field .outher:nth-child(3) .cell:nth-child(2) {
+  border-left: 3px solid rgb(3, 72, 142);
+  border-right: 3px solid rgb(3, 72, 142);
+}
+/* - ----borders for cells ---- -*/
+
 .cell:hover {
-  box-shadow: 0px 5px 10px 2px rgba(4, 0, 255, 0.2) inset;
+  box-shadow: 0px 5px 10px 2px #03498e49 inset;
 }
 
 .outher {
@@ -257,13 +335,13 @@ export default {
   padding: 0.2em 1.5em;
   outline: none;
   border: none;
-  background: rgb(2, 0, 36);
+  background: rgb(3, 72, 142);
   background: linear-gradient(
     180deg,
-    rgba(2, 0, 36, 1) 0%,
-    rgba(9, 121, 61, 1) 92%
+    rgba(3, 72, 142, 1) 0%,
+    rgba(255, 0, 114, 1) 100%
   );
-  color: whitesmoke;
+  color: white;
   border-radius: 5px;
   cursor: pointer;
 }
@@ -286,28 +364,33 @@ export default {
   border: double 1em transparent;
   border-radius: 50%;
   background-image: linear-gradient(white, white),
-    linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(121, 9, 47, 1) 35%);
+    linear-gradient(
+      90deg,
+      rgba(131, 58, 180, 1) 0%,
+      rgba(253, 29, 29, 1) 50%,
+      rgba(252, 176, 69, 1) 100%
+    );
   background-origin: border-box;
   background-clip: content-box, border-box;
 }
 
 .cross-line {
-  top: 50%;
-  bottom: 50%;
+  top: 45%;
+  bottom: 55%;
   position: absolute;
   width: 130px;
   height: 18px;
   border-radius: 7px;
-  background: rgb(2, 0, 36);
+  background: rgb(3, 72, 142);
   background: linear-gradient(
-    90deg,
-    rgba(2, 0, 36, 1) 0%,
-    rgba(9, 85, 121, 1) 35%
+    270deg,
+    rgba(3, 72, 142, 1) 0%,
+    rgba(255, 0, 114, 1) 100%
   );
 }
 
 .total-score-inner:first-child {
-  border-right: 1px solid #1f2937;
+  border-right: 2px solid #03488e;
   padding-right: 0.8em;
 }
 
@@ -326,28 +409,30 @@ export default {
   flex-direction: column;
   font-family: 'Zen Loop', cursive;
   font-size: 1.5em;
-  color: #111827;
+  color: rgb(3, 72, 142);
 }
 
 .total-score-top {
   padding: 0.5em 1.5em;
-  border-right: 2px solid #111827;
-  border-top: 2px solid #111827;
-  border-bottom: 2px solid #111827;
+  border-right: 2px solid rgb(3, 72, 142);
+  border-top: 2px solid rgb(3, 72, 142);
+  border-bottom: 2px solid rgb(3, 72, 142);
   border-top-right-radius: 0.7em;
   border-bottom-right-radius: 0.7em;
   margin-bottom: 10px;
+  box-shadow: 5px 5px 5px -5px rgba(24, 64, 142, 0.6);
 }
 
 .clear-score-btn {
+  color: rgb(3, 72, 142);
   outline: none;
   border: none;
   background: none;
   font-family: 'Zen Loop', cursive;
   font-size: 1.2em;
-  border-right: 2px solid #111827;
-  border-top: 2px solid #111827;
-  border-bottom: 2px solid #111827;
+  border-right: 2px solid rgb(3, 72, 142);
+  border-top: 2px solid rgb(3, 72, 142);
+  border-bottom: 2px solid rgb(3, 72, 142);
   border-top-right-radius: 0.4em;
   border-bottom-right-radius: 0.4em;
   padding: 0.2em 0.7em;
@@ -356,7 +441,8 @@ export default {
 
 .clear-score-btn:hover {
   box-shadow: 0px 5px 10px 2px rgba(4, 0, 255, 0.2) inset;
-  transition: 0.2s;
-  transform: scale(1.07);
+  transition: 0.5s;
+  width: 105%;
+  /* transform: scale(1.07); */
 }
 </style>

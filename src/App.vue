@@ -1,38 +1,43 @@
 <template>
   <div class="total-score">
-    <h2>Total score</h2>
-    <div class="total-score-window">
-      <div class="cross-score total-score-inner">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="32"
-          height="32"
-          fill="currentColor"
-          class="bi bi-x-lg"
-          viewBox="0 0 16 16"
-        >
-          <path
-            d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"
-          />
-        </svg>
-        <h3 class="score-number">{{ totalScore.cross }}</h3>
-      </div>
-      <div class="circle-score total-score-inner">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="32"
-          height="32"
-          fill="currentColor"
-          class="bi bi-circle"
-          viewBox="0 0 16 16"
-        >
-          <path
-            d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
-          />
-        </svg>
-        <h3 class="score-number">{{ totalScore.circle }}</h3>
+    <div class="total-score-top">
+      <h2>Total score</h2>
+      <div class="total-score-window">
+        <div class="cross-score total-score-inner">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            fill="currentColor"
+            class="bi bi-x-lg"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"
+            />
+          </svg>
+          <h3 class="score-number">{{ totalScore.cross }}</h3>
+        </div>
+        <div class="circle-score total-score-inner">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            fill="currentColor"
+            class="bi bi-circle"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"
+            />
+          </svg>
+          <h3 class="score-number">{{ totalScore.circle }}</h3>
+        </div>
       </div>
     </div>
+    <button @click="clearScore()" class="total-score-bottom clear-score-btn">
+      Clear score
+    </button>
   </div>
   <div class="main">
     <div id="field">
@@ -44,7 +49,7 @@
           class="cell"
           v-bind:disabled="isGameFinished"
         >
-          <div v-if="cell === 'X'" class="cross">
+          <div v-if="cell === 'X'" class="cross" v-bind:class="'cross' + i + j">
             <div class="cross-line cross-line-1"></div>
             <div class="cross-line cross-line-2"></div>
           </div>
@@ -56,7 +61,7 @@
     <template v-if="isGameFinished">
       <h4>Game has finished, winner: {{ winner }}</h4>
       <button @click="clearField()" class="clear-field-btn">
-        Clear field
+        reset
       </button>
     </template>
   </div>
@@ -81,15 +86,39 @@ export default {
       },
     };
   },
+  mounted() {
+    const gameData = this.getGameDataFromLocalStorage('tic-tac-toe');
+    this.field = gameData.field;
+    this.isCrossPlayer = gameData.isCrossPlayer;
+    this.isGameFinished = gameData.isGameFinished;
+    this.winner = gameData.winner;
+    this.totalScore = gameData.totalScore;
+  },
   methods: {
+    getGameDataFromLocalStorage(key) {
+      return JSON.parse(localStorage.getItem(key)) || this.$data;
+    },
+    setGameDataToLocalStorage(key) {
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          field: this.field,
+          isCrossPlayer: this.isCrossPlayer,
+          isGameFinished: this.isGameFinished,
+          winner: this.winner,
+          totalScore: this.totalScore,
+        })
+      );
+    },
     setMark(i, j) {
+      let copy = [...this.field];
       if (!this.field[i][j]) {
         if (this.isCrossPlayer) {
-          this.field[i][j] = 'X';
-          console.log(this.field);
+          copy[i][j] = 'X';
+          this.field = copy;
         } else {
-          this.field[i][j] = 'O';
-          console.log(this.field);
+          copy[i][j] = 'O';
+          this.field = copy;
         }
         this.isCrossPlayer = !this.isCrossPlayer;
         this.checkWinPositions();
@@ -134,6 +163,12 @@ export default {
         this.winner = 'draw';
       }
     },
+    clearScore() {
+      this.totalScore = {
+        cross: 0,
+        circle: 0,
+      };
+    },
     clearField() {
       this.field = [
         ['', '', ''],
@@ -143,6 +178,14 @@ export default {
       this.isCrossPlayer = true;
       this.isGameFinished = false;
       this.winner = null;
+    },
+  },
+  watch: {
+    field() {
+      this.setGameDataToLocalStorage('tic-tac-toe');
+    },
+    totalScore() {
+      this.setGameDataToLocalStorage('tic-tac-toe');
     },
   },
 };
@@ -162,7 +205,6 @@ export default {
 
 #field {
   width: min-content;
-  /* height: 423px; */
   display: flex;
   flex-wrap: wrap;
   border-top: 2px solid #1f2937;
@@ -209,8 +251,9 @@ export default {
 .clear-field-btn {
   font-family: 'Zen Loop', cursive;
   font-size: 1.5em;
+  text-transform: uppercase;
   width: 145px;
-  height: 2em;
+  height: 1.8em;
   padding: 0.2em 1.5em;
   outline: none;
   border: none;
@@ -279,14 +322,41 @@ export default {
 .total-score {
   position: absolute;
   left: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Zen Loop', cursive;
+  font-size: 1.5em;
+  color: #111827;
+}
+
+.total-score-top {
   padding: 0.5em 1.5em;
   border-right: 2px solid #111827;
   border-top: 2px solid #111827;
   border-bottom: 2px solid #111827;
-  font-family: 'Zen Loop', cursive;
-  font-size: 1.5em;
-  /* text-align: start; */
   border-top-right-radius: 0.7em;
   border-bottom-right-radius: 0.7em;
+  margin-bottom: 10px;
+}
+
+.clear-score-btn {
+  outline: none;
+  border: none;
+  background: none;
+  font-family: 'Zen Loop', cursive;
+  font-size: 1.2em;
+  border-right: 2px solid #111827;
+  border-top: 2px solid #111827;
+  border-bottom: 2px solid #111827;
+  border-top-right-radius: 0.4em;
+  border-bottom-right-radius: 0.4em;
+  padding: 0.2em 0.7em;
+  cursor: pointer;
+}
+
+.clear-score-btn:hover {
+  box-shadow: 0px 5px 10px 2px rgba(4, 0, 255, 0.2) inset;
+  transition: 0.2s;
+  transform: scale(1.07);
 }
 </style>
